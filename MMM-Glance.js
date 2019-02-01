@@ -35,71 +35,9 @@ Module.register("MMM-Glance", {
     }
   },
 
-  getCommands: function(register) {
-    if (register.constructor.name == 'TelegramBotCommandRegister') {
-      register.add({
-        command: "glanceables",
-        description: this.translate("CMD_GLANCENAMES_DESCRIPTION"),
-        callback: "cmd_glancenames"
-      })
-      register.add({
-        command: "glance",
-        description: this.translate("CMD_GLANCE_DESCRIPTION"),
-        args_pattern: [/.*/],
-        args_mapping: ["name"],
-        callback: "cmd_glanceon"
-      })
-      register.add({
-        command: "glanceoff",
-        description: this.translate("CMD_GLANCEOFF_DESCRIPTION"),
-        callback: "cmd_glanceoff"
-      })
-    }
-    if (register.constructor.name == 'AssistantCommandRegister') {
-      register.add({
-        command: this.translate("CMD_ASSTNT_GLANCEABLENAMES"),
-        description: this.translate("CMD_GLANCENAMES_DESCRIPTION"),
-        callback: "cmd_glancenames"
-      })
-      register.add({
-        //command: "glance :name",
-        command: this.translate("CMD_ASSTNT_GLANCE"),
-        description: this.translate("CMD_ASSTNT_GLANCE_DESCRIPTION"),
-        callback: "cmd_glanceon"
-      })
-      register.add({
-        command: this.translate("CMD_ASSTNT_GLANCEOFF"),
-        description: this.translate("CMD_GLANCEOFF_DESCRIPTION"),
-        callback: "cmd_glanceoff"
-      })
-    }
-  },
-
-  cmd_glanceon: function(command, handler) {
-    if (handler.args) {
-      var ret = this.glanceOn(handler.args.name)
-      if (ret) {
-        handler.reply("TEXT", this.translate("CMD_GLANCE_SUCCESS"))
-      } else {
-        handler.reply("TEXT", this.translate("CMD_GLANCE_IMPOSSIBLE"), handler.args.name)
-      }
-    } else {
-      handler.reply("TEXT", this.translate("CMD_GLANCE_NO_ARGS"))
-    }
-
-  },
-  cmd_glanceoff: function(command, handler) {
-    this.glanceOff()
-    handler.reply("TEXT", this.translate("CMD_GLANCE_SUCCESS"))
-  },
-
-  cmd_glancenames: function(command, handler) {
-    var text=""
-    text = Object.keys(this.alias).join()
-    handler.reply("TEXT", text)
-  },
 
   initialize: function() {
+    console.log("Initialize Glance");
     var self = this
     MM.getModules().enumerate(function(m) {
       if(m.data.position) {
