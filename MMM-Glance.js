@@ -48,6 +48,7 @@ Module.register("MMM-Glance", {
   },
 
   glanceOn : function (call, time) {
+    console.log("Glance on");
     var filter = []
     var self = this
 
@@ -101,6 +102,7 @@ Module.register("MMM-Glance", {
   },
 
   glanceOff: function() {
+    console.log("Glance off");
     this.glancing = false
     if (this.timer) {
       clearTimeout(this.timer)
