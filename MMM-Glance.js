@@ -11,7 +11,6 @@ Module.register("MMM-Glance", {
 
 
   defaults: {
-    defaultGlancingTime : 10000,
     alias: {}
   },
 
@@ -19,7 +18,6 @@ Module.register("MMM-Glance", {
     this.status = {}
     this.alias = {}
     this.glancing = false
-    this.timer = null
     this.defaultAlias = {
       "news" : "newsfeed",
       "weather" : "currentweather",
@@ -47,13 +45,10 @@ Module.register("MMM-Glance", {
     this.alias = Object.assign({}, this.alias, this.defaultAlias, this.config.alias)
   },
 
-  glanceOn : function (call, time) {
+  glanceOn : function (call) {
     var filter = []
     var self = this
 
-    if (!time) {
-      time = this.config.defaultGlancingTime
-    }
     if (Object.keys(this.alias).indexOf(call) >= 0) {
       var modules = this.alias[call]
       if (Array.isArray(modules)) {
@@ -82,8 +77,6 @@ Module.register("MMM-Glance", {
     if (matched == 0) {
       return false
     } else {
-      clearTimeout(this.timer)
-      this.timer = null
       MM.getModules().enumerate(function(m) {
         if (Object.values(filter).indexOf(m.name) >= 0) {
           m.show(0)
@@ -93,35 +86,26 @@ Module.register("MMM-Glance", {
       })
       this.glancing = true
       this.sendNotification('GLANCE_STARTED', {modules:filter, time:time})
-      this.timer = setTimeout(function(){
-        self.glanceOff()
-      }, time)
       return true
     }
   },
 
   glanceOff: function() {
     this.glancing = false
-    if (this.timer) {
-      clearTimeout(this.timer)
-      this.timer = null
-      var self = this
-      MM.getModules().enumerate(function(m) {
-        if (typeof self.status[m.name] !== 'undefined') {
-          if (self.status[m.name]) {
-            m.hide(0)
-          } else {
-            m.show(0)
-          }
+
+    var self = this
+    MM.getModules().enumerate(function(m) {
+      if (typeof self.status[m.name] !== 'undefined') {
+        if (self.status[m.name]) {
+          m.hide(0)
+        } else {
+          m.show(0)
         }
-      })
-      this.status = {}
-
-      this.sendNotification('GLANCE_ENDED')
-      return true
-    }
-    return false
-
+      }
+    })
+    this.status = {}
+    this.sendNotification('GLANCE_ENDED')
+    return true;
   },
 
   notificationReceived: function(notification, payload, sender) {
@@ -130,7 +114,7 @@ Module.register("MMM-Glance", {
         this.initialize()
         break
       case 'GLANCE_ON':
-        this.glanceOn(payload.name, payload.time)
+        this.glanceOn(payload.name)
         break
       case 'GLANCE_OFF':
         this.glanceOff()
